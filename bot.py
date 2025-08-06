@@ -1,40 +1,4 @@
-import discord
-from discord.ext import commands
-from discord.utils import get
-
-intents = discord.Intents.default()
-intents.message_content = True
-intents.guilds = True
-intents.members = True
-
-bot = commands.Bot(command_prefix="!", intents=intents)
-
-BOSS_ROLE_NAME = "boss"
-OWNER_ID = 447426989280722946  # Your ID
-
-# Check if user has boss role or is the owner
-def is_boss():
-    async def predicate(ctx):
-        if ctx.author.id == OWNER_ID:
-            return True
-        boss_role = get(ctx.author.roles, name=BOSS_ROLE_NAME)
-        if boss_role:
-            return True
-        await ctx.send("🚫 You don't have permission to use this command.")
-        return False
-    return commands.check(predicate)
-
-@bot.event
-async def on_ready():
-    print(f"✅ Logged in as {bot.user.name}")
-
-@bot.command()
-async def commands(ctx):
-    await ctx.send("""
-📜 **Command List**:
-
-👑 `!boss @user` - Make a user Boss  
-🤝 `!associate @user` - Make a user Associate  
+DISCORD_TOKEN=your_actual_token_here🤝 `!associate @user` - Make a user Associate  
 👨‍👨‍👦 `!crew @user` - Make a user Crew  
 🧠 `!rhm @user` - Make a user Right Hand Man  
 👤 `!customer @user` - Make a user a Customer  
