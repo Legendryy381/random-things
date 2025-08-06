@@ -1,6 +1,6 @@
-import os
 import discord
 from discord.ext import commands
+from discord.utils import get
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -9,32 +9,85 @@ intents.members = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-BOSS_ROLE_NAME = "Boss"
+BOSS_ROLE_NAME = "boss"
+OWNER_ID = 447426989280722946  # Your ID
 
-@bot.event
-async def on_ready():
-    print(f"Bot is online as {bot.user}")
-
+# Check if user has boss role or is the owner
 def is_boss():
     async def predicate(ctx):
-        role = discord.utils.get(ctx.author.roles, name=BOSS_ROLE_NAME)
-        if role:
+        if ctx.author.id == OWNER_ID:
+            return True
+        boss_role = get(ctx.author.roles, name=BOSS_ROLE_NAME)
+        if boss_role:
             return True
         await ctx.send("🚫 You don't have permission to use this command.")
         return False
     return commands.check(predicate)
 
-@bot.command()
-async def ping(ctx):
-    await ctx.send("🏓 Pong!")
+@bot.event
+async def on_ready():
+    print(f"✅ Logged in as {bot.user.name}")
 
 @bot.command()
-async def help(ctx):
-    help_msg = """
-**📜 Command List:**
-- `!setup` → Create channels, roles, and assign you as Boss
-- `!ping` → Check if the bot is online
-- `!customer @user` → Assign Customer role
+async def commands(ctx):
+    await ctx.send("""
+📜 **Command List**:
+
+👑 `!boss @user` - Make a user Boss  
+🤝 `!associate @user` - Make a user Associate  
+👨‍👨‍👦 `!crew @user` - Make a user Crew  
+🧠 `!rhm @user` - Make a user Right Hand Man  
+👤 `!customer @user` - Make a user a Customer  
+ℹ️ `!commands` - Show this help message
+    """)
+
+@bot.command()
+@is_boss()
+async def customer(ctx, member: discord.Member):
+    role = get(ctx.guild.roles, name="customer")
+    if not role:
+        role = await ctx.guild.create_role(name="customer")
+    await member.add_roles(role)
+    await ctx.send(f"✅ {member.mention} is now a Customer.")
+
+@bot.command()
+@is_boss()
+async def rhm(ctx, member: discord.Member):
+    role = get(ctx.guild.roles, name="rhm")
+    if not role:
+        role = await ctx.guild.create_role(name="rhm")
+    await member.add_roles(role)
+    await ctx.send(f"✅ {member.mention} is now Right Hand Man.")
+
+@bot.command()
+@is_boss()
+async def crew(ctx, member: discord.Member):
+    role = get(ctx.guild.roles, name="crew")
+    if not role:
+        role = await ctx.guild.create_role(name="crew")
+    await member.add_roles(role)
+    await ctx.send(f"✅ {member.mention} is now Crew.")
+
+@bot.command()
+@is_boss()
+async def associate(ctx, member: discord.Member):
+    role = get(ctx.guild.roles, name="associate")
+    if not role:
+        role = await ctx.guild.create_role(name="associate")
+    await member.add_roles(role)
+    await ctx.send(f"✅ {member.mention} is now Associate.")
+
+@bot.command()
+@is_boss()
+async def boss(ctx, member: discord.Member):
+    role = get(ctx.guild.roles, name=BOSS_ROLE_NAME)
+    if not role:
+        role = await ctx.guild.create_role(name=BOSS_ROLE_NAME)
+    await member.add_roles(role)
+    await ctx.send(f"👑 {member.mention} is now a Boss.")
+
+# Run your bot using the token (replace with your token)
+bot.run("YOUR_BOT_TOKEN")- `!customer @user` → Assign Customer role
 - `!crew @user` → Assign Crew (Employee) role
 - `!rhm @user` → Assign Right Hand Man role
 - `!associate @user` → Assign Associate role
